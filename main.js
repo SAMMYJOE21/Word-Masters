@@ -6,6 +6,8 @@ let used = [];
 let k = 0;
 let wordParts = [];
 let word = "";
+let right =[];
+let z = 0;
 
 let currentGuess = "";
 let currentRow = 0;
@@ -55,6 +57,7 @@ function addLetter (letter) {
     if (currentGuess.length < ANSWER_LENGTH) {
         // add letter to the end
         currentGuess += letter;
+       
     } else {
         // replace last letter
         currentGuess = currentGuess.substring(0, currentGuess.length - 1) + letter;
@@ -65,7 +68,7 @@ function addLetter (letter) {
 
 async function commit() {
     if (currentGuess.length != ANSWER_LENGTH) {
-        //do nothing
+        markInvalid();
         return;
     }
 
@@ -85,7 +88,7 @@ async function commit() {
     setLoading(false);
 
     if (!validWord) {
-        markInvalidWord();
+        markInvalid();
         return;
     }
     
@@ -109,22 +112,25 @@ async function commit() {
         if (guessParts[i] === wordParts[i]) {
             letters[currentRow * ANSWER_LENGTH + i].classList.add("correct");
             map[guessParts[i]]--;
-            
             change.style.background = 'darkgreen';
             change.style.color = 'white';
-
         } 
     }
 
     for (let i = 0; i < ANSWER_LENGTH; i++) {
         let change = document.getElementById(guessParts[i]);
         if (guessParts[i] === wordParts[i]) {
-            //do nothing we already did that
+            right[z] === guessParts[i];
+            z++;
         } else if (wordParts.includes(guessParts[i]) && map[guessParts[i]] > 0) {
             letters[currentRow * ANSWER_LENGTH + i].classList.add("close");
             map[guessParts[i]]--;
-            change.style.background = 'goldenrod';
-            change.style.color = 'white';
+            for (let j = 0; j < right.length; j++) {
+                if (guessParts[i] != right[j]) {
+                    change.style.background = 'goldenrod';
+                    change.style.color = 'white';
+                } 
+            } 
         } else {
             letters[currentRow * ANSWER_LENGTH + i].classList.add("wrong");
             change.style.background = '#888';
@@ -156,7 +162,8 @@ function backspace() {
     letters[ANSWER_LENGTH * currentRow + currentGuess.length].innerText = "";
 }
 
-function markInvalidWord() {
+
+function markInvalid() {
     // alert('Not a valid word');
 
     for (let i = 0; i < ANSWER_LENGTH; i++) {
@@ -164,6 +171,16 @@ function markInvalidWord() {
 
         setTimeout(function () {
             letters[currentRow * ANSWER_LENGTH + i].classList.add("invalid");
+        }, 10);
+    }
+}
+
+function markIncomplete() {
+    for (let i = 0; i < ANSWER_LENGTH; i++) {
+        letters[currentRow * ANSWER_LENGTH + i].classList.remove("animate__shakeX");
+
+        setTimeout(function () {
+            letters[currentRow * ANSWER_LENGTH + i].classList.add("animate__shakeX");
         }, 10);
     }
 }
